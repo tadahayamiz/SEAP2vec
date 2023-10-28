@@ -35,10 +35,11 @@ class Preprocess:
     
     """
     def __init__(
-            self, url, fileout:str="", sep:str=",", v_name:str="FITC"
+            self, url, fileout:str="", sep:str=","
             ):
         df = pd.read_csv(url, sep=sep)
-        df2 = df["sample_id", "sample_name", "sample_label"].drop_duplicates()
+        focused = ["sample_id", "sample_name", "sample_label"]
+        df2 = df.loc[:, focused].drop_duplicates()
         names = list(df2["sample_name"])
         ids = list(df2["sample_id"])
         new = [f"{n}_{i}" for n, i in zip(names, ids)]
