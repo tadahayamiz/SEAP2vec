@@ -1,5 +1,5 @@
-## histogram2vec
-a package that converts histogram to vector  
+## SEAP2vec
+a package that converts SEAP data to vector  
 
 ## Install
 - ``` pip install git+{URL OF THIS GITHUB REPOSITORY} ```  

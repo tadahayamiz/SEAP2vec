@@ -2,7 +2,7 @@
 """
 Created on Fri 29 15:46:32 2022
 
-prepare dataloader
+prepare dataset
 
 @author: tadahaya
 """
@@ -12,14 +12,14 @@ import numpy as np
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
-import cv2
+# import cv2
 from collections import Counter
 from itertools import chain
 from tqdm.auto import tqdm, trange
 
 FIELD = [
-    "Dataset",	"DiseaseType", "SpecimenID", "Enzyme", "Position", "ID",
-    "Number", "X", "Y", "FITC", "mCherry", "Date"
+    "data_id",	"well_id", "value", "date", "color", "plate",
+    "sample_id", "sample_name", "sample_label", "slice", "X", "Y"
     ]
 
 SEP = os.sep
@@ -27,58 +27,29 @@ SEP = os.sep
 class Preprocess:
     """
     preprocessor, 基本的にハード
+    全部こみこみのtableデータからメタ情報を抜く
     
-    ID: 2nd_H_0404_6PGDH2_1
-        2ndデータセット
-            1st, 2nd, astと三つある. astってなんだろうか
-        健常人ラベル
-            healty OR cancerで問題ない
-        血液検体IDが0404
-            検体IDで問題ない
-        6PGDH2
-            これかLDHの二つなので見ている酵素だろう
-        1
-            1-12までしかないので視野番号だろう
-            Positionと他では表記されていた
-    Number
-        各視野内での輝点番号
-    X, Y
-        各視野内でのX, Y座標
-    FITC
-        プローブ蛍光由来の強度
-    mCherry
-        reference色素の強度
-    Date
-        測定日付
+    基本的にsample_idが1測定になっている
+    ただしsample_nameと1 : 1にはなっていない
+    sample_labelが疾患状態を表す
     
     """
     def __init__(
             self, url, fileout:str="", sep:str=",", v_name:str="FITC"
             ):
         df = pd.read_csv(url, sep=sep)
-        ids = df["ID"].values.flatten().tolist()
-        split = []
-        n_item = 0
-        for i in ids:
-            tmp = i.split("_")
-            if n_item==0:
-                n_item = len(tmp)
-            else:
-                if n_item!=len(tmp):
-                    print(i)
-                    raise ValueError
-            split.append(tmp)
-        df_id = pd.DataFrame(split)
-        self.id_col = ["Dataset", "DiseaseType", "SpecimenID", "Enzyme", "Position"]
-        df_id.columns = self.id_col
-        comb = pd.concat([df_id, df], axis=1, join="inner")
-        self.data = comb
+        df2 = df["sample_id", "sample_name", "sample_label"].drop_duplicates()
+        names = list(df2["sample_name"])
+        ids = list(df2["sample_id"])
+        new = [f"{n}_{i}" for n, i in zip(names, ids)]
+        df2.loc[:, "unique_name"] = new
+        self.data = df2
         # preprocessing
-        self._fix(v_name)
+        # self._fix(v_name)
         # export
         if len(fileout) == 0:
             ext = url.split(".")[-1]
-            fileout = url.replace(f".{ext}", f"_modified.{ext}")
+            fileout = url.replace(f".{ext}", f"_meta.{ext}")
         self.data.to_csv(fileout, sep=sep)
 
 
