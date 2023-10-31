@@ -75,13 +75,13 @@ class Preprocess:
                 tmp = tmp[tmp["value"] <= q3 + beta * iqr]
                 conv.append(tmp)
         df3 = pd.concat(conv, axis=0, join="inner")
-        print(df.shape, df3.shape)
+        print(f"complet preprocessing: {df.shape} -> {df3.shape}")
         self.data = df3
         # export
         if len(fileout) == 0:
             ext = url.split(".")[-1]
             fileout0 = url.replace(f".{ext}", f"_meta.{ext}")
-            fileout1 = url.replace(f".{ext}", f"_data_{beta}IQR.{ext}")
+            fileout1 = url.replace(f".{ext}", f"_data_{int(beta)}IQR.{ext}")
         self.meta.to_csv(fileout0, sep=sep)
         self.data.to_csv(fileout1, sep=sep)
 
