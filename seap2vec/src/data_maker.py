@@ -32,26 +32,58 @@ class Preprocess:
     基本的にsample_idが1測定になっている
     ただしsample_nameと1 : 1にはなっていない
     sample_labelが疾患状態を表す
+
+    Parameters
+    ----------
+    url: str
+        filepath
+
+    colors: str
+        前処理が必要な色
+    
+    beta: float
+        上側外れ値のthrehold
     
     """
     def __init__(
-            self, url, fileout:str="", sep:str=","
+            self, url, colors=["green", "red"], beta:float=2.0, fileout:str="", sep:str=","
             ):
         df = pd.read_csv(url, sep=sep)
+        # meta information
         focused = ["sample_id", "sample_name", "sample_label"]
-        df2 = df.loc[:, focused].drop_duplicates()
+        df2 = df.copy().loc[:, focused].drop_duplicates()
         names = list(df2["sample_name"])
         ids = list(df2["sample_id"])
         new = [f"{n}_{i}" for n, i in zip(names, ids)]
         df2.loc[:, "unique_name"] = new
-        self.data = df2
+        self.meta = df2
         # preprocessing
         # self._fix(v_name)
+        # data preprocessing
+        self.beta = beta
+        df3 = df.copy()
+        ## 下側外れ値
+        df3 = df3[df3["value"] > 0]
+        conv = []
+        for i in ids:
+            tmp0 = df3[df3["sample_id"]==i]
+            for c in colors:
+                tmp = tmp0[tmp0["color"]==c]
+                x = tmp["value"].values.flatten()
+                q3, q1 = np.percentile(x, (75, 25))
+                iqr = q3 - q1
+                tmp = tmp[tmp["value"] <= q3 + beta * iqr]
+                conv.append(tmp)
+        df3 = pd.concat(conv, axis=0, join="inner")
+        print(df.shape, df3.shape)
+        self.data = df3
         # export
         if len(fileout) == 0:
             ext = url.split(".")[-1]
-            fileout = url.replace(f".{ext}", f"_meta.{ext}")
-        self.data.to_csv(fileout, sep=sep)
+            fileout0 = url.replace(f".{ext}", f"_meta.{ext}")
+            fileout1 = url.replace(f".{ext}", f"_data_{beta}IQR.{ext}")
+        self.meta.to_csv(fileout0, sep=sep)
+        self.data.to_csv(fileout1, sep=sep)
 
 
     def _fix(self, v_name:str="FITC"):
