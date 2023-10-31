@@ -6,9 +6,9 @@ with open('requirements.txt') as requirements_file:
 # modify entry_points to use command line 
 # {COMMAND NAME}={module path}:{function in the module}
 setup(
-    name="histogram2vec",
+    name="seap2vec",
     version="0.0.1",
-    description="a package that converts histogram into vector",
+    description="a package that converts SEAP data into vector",
     author="tadahaya",
     packages=find_packages(),
     install_requires=install_requirements,

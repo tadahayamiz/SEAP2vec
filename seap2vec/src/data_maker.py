@@ -62,7 +62,6 @@ class Preprocess:
         # data preprocessing
         self.beta = beta
         df3 = df.copy()
-        df3 = df3[df3["color"].isin(colors)]
         ## 下側外れ値
         df3 = df3[df3["value"] > 0]
         conv = []
