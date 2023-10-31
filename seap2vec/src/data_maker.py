@@ -62,6 +62,7 @@ class Preprocess:
         # data preprocessing
         self.beta = beta
         df3 = df.copy()
+        df3 = df3[df3["colors"].isin(colors)]
         ## 下側外れ値
         df3 = df3[df3["value"] > 0]
         conv = []
@@ -75,7 +76,7 @@ class Preprocess:
                 tmp = tmp[tmp["value"] <= q3 + beta * iqr]
                 conv.append(tmp)
         df3 = pd.concat(conv, axis=0, join="inner")
-        print(f"complet preprocessing: {df.shape} -> {df3.shape}")
+        print(f"complete preprocessing: {df.shape} -> {df3.shape}")
         self.data = df3
         # export
         if len(fileout) == 0:
@@ -116,9 +117,12 @@ class Data:
     data格納モジュール, 基本的にハード
         
     """
-    def __init__(self, input):
+    def __init__(self, input, colors:list=["green", "red"]):
         # 読み込み
         self.data = None
+        self.colors = colors
+        self.dim = len(colors)
+        assert (self.dim > 0) & (self.dim <= 2)
         if type(input) == str:
             self.data = pd.read_csv(input, index_col=0)
         elif type(input) == type(pd.DataFrame()):
