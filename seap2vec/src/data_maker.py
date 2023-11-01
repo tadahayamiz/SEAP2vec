@@ -145,7 +145,7 @@ class Data:
                 raise KeyError("!! Wrong key in condition: check the keys of condition !!")
 
 
-    def sample(
+    def sample1(
         self, sid:int, n_sample:int=256, ratio:float=0.9,
         v_name:str="value", s_name:str="sample_id"
         ):
@@ -161,12 +161,57 @@ class Data:
             valueカラムの名称
             DPPVIの場合は素直にvalue
 
+        Returns
+        -------
+        a list of sampled data
+
         """
         tmp = self.data[self.data[s_name]==sid]
-        dim = int(tmp.shape[0] * ratio)
-        res = np.zeros((n_sample, dim))
+        tmp = tmp[tmp["colors"]==self.colors[0]]
+        n = int(tmp.shape[0] * ratio)        
+        res = [tmp.sample(n=n)[v_name].values for i in range(n_sample)]
+        return res
+
+
+    def sample2(
+        self, sid:int, n_sample:int=256, ratio:float=0.9,
+        v_name:str="value", s_name:str="sample_id"
+        ):
+        """
+        指定した検体からn_sampleの回の輝点のサンプリングを行う
+
+        Parameters
+        ----------
+        sid: int
+            Specimen ID, 検体をidentifyする
+
+        v_name: str
+            valueカラムの名称
+            DPPVIの場合は素直にvalue
+
+        Returns
+        -------
+        a list of sampled data
+
+        """
+        tmp = self.data[self.data[s_name]==sid]
+        p = self.dim
+        tmp0 = tmp[tmp["color"]==self.colors[0]]
+        tmp1 = tmp[tmp["color"]==self.colors[1]]
+        common_well = set(tmp0["well_id"]) & set(tmp1["well_id"])
+        tmp0 = tmp0[tmp0["well_id"].isin(common_well)]
+        tmp1 = tmp1[tmp1["well_id"].isin(common_well)] # sample_idとcolorを絞るとwell_idのサイズに一致
+        x0 = tmp0[v_name].values
+        x1 = tmp1[v_name].values
+        X = np.array([x0, x1]).T
+        n = int(tmp0.shape[0] * ratio) 
+        idx = list(range(n))
+        rng = np.random.default_rng()
+        res = []
         for i in range(n_sample):
-            res[i, :] = tmp.sample(n=dim)[v_name].values
+            tmp_idx = idx.copy()
+            rng.shuffle(tmp_idx)
+            res.append(X[tmp_idx, :])
         return res
 
 
@@ -174,18 +219,28 @@ class Data:
             self, samplesize:int=10000, ratio:float=0.9,
             shuffle:bool=True, v_name:str="value", s_name:str="sample_id"
             ):
-        """ 指定したsamplesizeまでサンプリングを行う """
+        """
+        指定したsamplesizeまでサンプリングを行う
+        dataをlistで返す
+        1dなら[1d-array]
+        2dなら[2d-array]
+        
+        """
         specimens = set(list(self.data[s_name]))
         print(f"> handling {len(specimens)} specimens")
         n_sample = samplesize // len(specimens) # n_sampleを決める
         res = []
         specimen = []
-        for s in tqdm(specimens):
-            tmp = self.sample(s, n_sample, ratio, v_name, s_name)
-            tmp = [v[0] for v in np.split(tmp, n_sample, axis=0)]
-            ## 1個中に入るため
-            res.append(tmp)
-            specimen.append([s] * n_sample)
+        if self.dim == 1:
+            for s in tqdm(specimens):
+                tmp = self.sample1(s, n_sample, ratio, v_name, s_name)
+                res.append(tmp)
+                specimen.append([s] * n_sample)
+        elif self.dim == 2:
+            for s in tqdm(specimens):
+                tmp = self.sample2(s, n_sample, ratio, v_name, s_name)
+                res.append(tmp)
+                specimen.append([s] * n_sample)
         res = list(chain.from_iterable(res))
         specimen = list(chain.from_iterable(specimen))
         if shuffle:
@@ -220,6 +275,31 @@ class Data:
         if len(outdir) > 0:
             plt.savefig(outdir + SEP + f"hist_{sid}.png")
         plt.show()
+
+
+    # def imshow(
+    #         self, sid:int, bins:int=64, ratio:float=0.9, condition:dict=dict(),
+    #         outdir:str="", v_name:str="value", s_name:str="sample_id",
+    #         figsize=(), fontsize:int=16
+    #         ):
+    #     """ 指定したIDの画像を表示する """
+    #     # data
+    #     if len(condition) > 0:
+    #         self.conditioned(condition)
+    #     data = self.sample(sid, 2, ratio, v_name, s_name)[0]
+    #     # show
+    #     if len(figsize) > 0:
+    #         fig = plt.figure(figsize=figsize)
+    #     else:
+    #         fig = plt.figure()
+    #     plt.rcParams["font.size"] = fontsize
+    #     ax = fig.add_subplot(1, 1, 1)
+    #     plt.gca().spines["top"].set_visible(False)
+    #     plt.gca().spines["right"].set_visible(False)
+    #     ax.hist(data, color="black", bins=bins)
+    #     if len(outdir) > 0:
+    #         plt.savefig(outdir + SEP + f"hist_{sid}.png")
+    #     plt.show()
 
 
 class DataMaker:
