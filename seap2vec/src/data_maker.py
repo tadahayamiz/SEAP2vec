@@ -167,7 +167,7 @@ class Data:
 
         """
         tmp = self.data[self.data[s_name]==sid]
-        tmp = tmp[tmp["colors"]==self.colors[0]]
+        tmp = tmp[tmp["color"]==self.colors[0]]
         n = int(tmp.shape[0] * ratio)        
         res = [tmp.sample(n=n)[v_name].values for i in range(n_sample)]
         return res
