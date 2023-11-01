@@ -261,20 +261,26 @@ class Data:
         # data
         if len(condition) > 0:
             self.conditioned(condition)
-        data = self.sample(sid, 2, ratio, v_name, s_name)[0]
-        # show
-        if len(figsize) > 0:
-            fig = plt.figure(figsize=figsize)
+        if self.dim == 1:
+            data = self.sample1(sid, 2, ratio, v_name, s_name)[0]
+            # show
+            if len(figsize) > 0:
+                fig = plt.figure(figsize=figsize)
+            else:
+                fig = plt.figure()
+            plt.rcParams["font.size"] = fontsize
+            ax = fig.add_subplot(1, 1, 1)
+            plt.gca().spines["top"].set_visible(False)
+            plt.gca().spines["right"].set_visible(False)
+            ax.hist(data, color="black", bins=bins)
+            if len(outdir) > 0:
+                plt.savefig(outdir + SEP + f"hist_{sid}.png")
+            plt.show()
+        elif self.dim > 1:
+            pass
         else:
-            fig = plt.figure()
-        plt.rcParams["font.size"] = fontsize
-        ax = fig.add_subplot(1, 1, 1)
-        plt.gca().spines["top"].set_visible(False)
-        plt.gca().spines["right"].set_visible(False)
-        ax.hist(data, color="black", bins=bins)
-        if len(outdir) > 0:
-            plt.savefig(outdir + SEP + f"hist_{sid}.png")
-        plt.show()
+            raise ValueError
+
 
 
     # def imshow(
