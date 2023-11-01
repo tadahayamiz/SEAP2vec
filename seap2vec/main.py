@@ -126,7 +126,7 @@ class Hist2vec:
             output, mu, logvar = model(data_in) # forward
 
 
-            print(output)
+            # print(output)
 
 
             loss, rl, kld = criterion(output, data_out, mu, logvar) # calculate loss
