@@ -32,7 +32,10 @@ class MyDataset(torch.utils.data.Dataset):
                 self.transform = transform
         else:
             if transform is None:
-                self.transform = []
+                self.transform = [
+                    transforms.RandomAffine(degrees=0, translate=(0.1, 0.0))
+                    ]
+                # x軸方向に対してinvariantにしたいため
             else:
                 self.transform = [transform]
         self.input = input
