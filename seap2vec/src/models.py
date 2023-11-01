@@ -146,7 +146,7 @@ class VAE(nn.Module):
 def loss_function(recon_x, x, mu, logvar):
     # https://arxiv.org/abs/1312.6114 (Appendix B)
     # RL = F.binary_cross_entropy(recon_x, x, size_average=False)        
-    criterion = nn.BCELoss(size_average=False)
+    criterion = nn.BCEWithLogitsLoss(size_average=False)
     RL = criterion(recon_x, x)
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     return RL + KLD, RL, KLD
