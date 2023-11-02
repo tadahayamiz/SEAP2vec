@@ -425,13 +425,6 @@ class HistMaker:
         return img
 
 
-    # def binarize(self, data):
-    #     """ 得られたarrayを二値化する """
-    #     data = (data == 0).sum(axis=2) # h, w, cであり, blackなので255, 0のみとなっている
-    #     data = (data > 0).astype(np.uint8)
-    #     return data
-
-
     def binarize(self, data):
         """ 得られたarrayを二値化する """
         data = data.sum(axis=2) # h, w, cであり, blackなので255, 0のみとなっている
@@ -498,7 +491,7 @@ class ScatterMaker:
             test_size = self.symbol_size[0]
         if test_alpha is None:
             test_alpha = self.symbol_alpha[0]
-        self._test_view(data, test_size, test_alpha)
+        self._test_view(data[0], test_size, test_alpha)
 
     
     def set_specimen(self, specimen):
