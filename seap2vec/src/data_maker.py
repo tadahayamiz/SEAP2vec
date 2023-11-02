@@ -491,7 +491,7 @@ class ScatterMaker:
             test_size = self.symbol_size[0]
         if test_alpha is None:
             test_alpha = self.symbol_alpha[0]
-        self._test_view(data[0], test_size, test_alpha)
+        self._test_view(data, test_size, test_alpha)
 
     
     def set_specimen(self, specimen):
@@ -607,7 +607,8 @@ class ScatterMaker:
         fig, axes = plt.subplots(1, num, figsize=(2.5 * num, 2.5))
         for i in range(num):
             axes[i].scatter(
-                data[:, 0], data[:, 1],
+                data[i][:, 0], data[i][:, 1],
                 color="black", s=test_size, alpha=test_alpha
                 )
+        plt.tight_layout()
         plt.show()
