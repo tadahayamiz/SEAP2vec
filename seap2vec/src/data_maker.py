@@ -528,9 +528,9 @@ class ScatterMaker:
             img1 = self.get_scatter_array(
                 d, self.symbol_size[1], self.symbol_alpha[1]
                 )
-            # imageの格納, binarizeはしない
-            array0[i, :, :] = img0
-            array1[i, :, :] = img1
+            # imageの格納, grey scaleにしてチャンネルを潰すことに注意
+            array0[i, :, :] = self.to_grey(img0)
+            array1[i, :, :] = self.to_grey(img1)
         # NHWC形式になるように次元を追加
         array0 = array0[..., np.newaxis]
         array1 = array1[..., np.newaxis]
@@ -581,11 +581,12 @@ class ScatterMaker:
         return img
 
 
-    def binarize(self, data):
-        """ 得られたarrayを二値化する """
-        data = data.sum(axis=2) # h, w, cであり, blackなので255, 0のみとなっている
-        data = np.where(data > 0, 255, 0)
-        return data
+    def to_grey(self, data):
+        """ 得られたarrayをgrey scaleに変換する """
+        # 輝度信号Yへと変換する
+        # Y = 0.299 * R + 0.587 * G + 0.114 * B
+        grey = 0.299 * data[:, :, 0] + 0.587 * data[:, :, 1] + 0.114 * data[:, :, 2]
+        return grey
 
 
     def imshow(self, data, cmap='binary_r', figsize=None):
