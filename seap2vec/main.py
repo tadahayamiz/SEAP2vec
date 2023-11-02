@@ -28,7 +28,7 @@ from .src.models import loss_function
 SEP = os.sep
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-class Hist2vec:
+class SEAP2vec:
     def __init__(
             self, workdir:str="", datafile:str="", seed:int=222,
             num_epoch:int=100, batch_size:int=128, lr:float=1e-4,

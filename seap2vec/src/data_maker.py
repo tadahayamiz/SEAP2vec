@@ -252,7 +252,7 @@ class Data:
         return res, specimen
     
 
-    def imshow(
+    def imshow1(
             self, sid:int, bins:int=64, ratio:float=0.9, condition:dict=dict(),
             outdir:str="", v_name:str="value", s_name:str="sample_id",
             figsize=(), fontsize:int=16
@@ -261,7 +261,7 @@ class Data:
         # data
         if len(condition) > 0:
             self.conditioned(condition)
-        data = self.sample(sid, 2, ratio, v_name, s_name)[0]
+        data = self.sample1(sid, 2, ratio, v_name, s_name)[0]
         # show
         if len(figsize) > 0:
             fig = plt.figure(figsize=figsize)
@@ -277,32 +277,36 @@ class Data:
         plt.show()
 
 
-    # def imshow(
-    #         self, sid:int, bins:int=64, ratio:float=0.9, condition:dict=dict(),
-    #         outdir:str="", v_name:str="value", s_name:str="sample_id",
-    #         figsize=(), fontsize:int=16
-    #         ):
-    #     """ 指定したIDの画像を表示する """
-    #     # data
-    #     if len(condition) > 0:
-    #         self.conditioned(condition)
-    #     data = self.sample(sid, 2, ratio, v_name, s_name)[0]
-    #     # show
-    #     if len(figsize) > 0:
-    #         fig = plt.figure(figsize=figsize)
-    #     else:
-    #         fig = plt.figure()
-    #     plt.rcParams["font.size"] = fontsize
-    #     ax = fig.add_subplot(1, 1, 1)
-    #     plt.gca().spines["top"].set_visible(False)
-    #     plt.gca().spines["right"].set_visible(False)
-    #     ax.hist(data, color="black", bins=bins)
-    #     if len(outdir) > 0:
-    #         plt.savefig(outdir + SEP + f"hist_{sid}.png")
-    #     plt.show()
+    def imshow2(
+            self, sid:int, symbol_size:int=30, symbol_alpha:float=0.5,
+            linewidths:float=0.0, pixel:tuple=(64, 64), dpi:int=100,
+            ratio:float=0.9, condition:dict=dict(),
+            outdir:str="", v_name:str="value", s_name:str="sample_id",
+            figsize=(), fontsize:int=16
+            ):
+        """ 指定したIDの画像を表示する """
+        # data
+        if len(condition) > 0:
+            self.conditioned(condition)
+        data = self.sample2(sid, 2, ratio, v_name, s_name)[0]
+        # show
+        if len(figsize)==0:
+            figsize = pixel[0] / dpi, pixel[1] / dpi
+        fig = plt.figure(figsize=figsize)
+        plt.rcParams["font.size"] = fontsize
+        ax = fig.add_subplot(1, 1, 1)
+        plt.gca().spines["top"].set_visible(False)
+        plt.gca().spines["right"].set_visible(False)
+        ax.scatter(
+            data[sid][:, 0], data[sid][:, 1],
+            color="black", s=symbol_size, alpha=symbol_alpha
+            )
+        if len(outdir) > 0:
+            plt.savefig(outdir + SEP + f"scatter_{sid}.png")
+        plt.show()
 
 
-class DataMaker:
+class HistMaker:
     """
     dataを読み込んでヒストグラムを表すnp配列へと変換する
     
@@ -462,4 +466,155 @@ class DataMaker:
                 data[idx[i]], color="black", bins=test_bins
                 )
 
+        plt.show()
+
+
+class ScatterMaker:
+    """
+    dataを読み込んで散布図を表すnp配列へと変換する
+    
+    """
+    def __init__(
+            self, pixel:tuple=(64, 64), symbol_size:tuple=(30, 60),
+            symbol_alpha:tuple=(0.5, 0.3)
+            ):
+        assert symbol_size[0] <= symbol_size[1]
+        self.pixel = pixel
+        self._dpi = 100
+        self._figsize = pixel[0] / self._dpi, pixel[1] / self._dpi
+        self.symbol_size = symbol_size
+        self.symbol_alpha = symbol_alpha
+        self.data = None
+        self.specimen = None
+
+
+    def set_data(
+            self, data, test_size=None, test_alpha=None
+            ):
+        """ setter """
+        self.data = data
+        # plot
+        if test_size is None:
+            test_size = self.symbol_size[0]
+        if test_alpha is None:
+            test_alpha = self.symbol_alpha[0]
+        self._test_view(data, test_size, test_alpha)
+
+    
+    def set_specimen(self, specimen):
+        """ specimen ID """
+        self.specimen = specimen
+
+
+    def main(
+            self, outdir:str="", name:str="", ratio:float=0.9,
+            test_view:bool=True
+            ):
+        """
+        dataをまとめてscatter arrayへと変換, npzで保存する
+        input array, output arrayの順
+        各arrayはsample, h, wの順
+        time consuming, 1000回すのにXX min程度かかる
+        
+        Parameters
+        ----------
+        ratio: float, (0, 1)
+            サンプルからデータ点を取得する割合
+
+        """
+        assert len(outdir) > 0
+        assert (ratio > 0) & (ratio < 1) 
+        # dataの準備
+        array0 = np.zeros((len(self.data), self.pixel[0], self.pixel[1]))
+        array1 = np.zeros((len(self.data), self.pixel[0], self.pixel[1]))
+        for i, d in tqdm(enumerate(self.data)):
+            # dataのhistogram化
+            img0 = self.get_scatter_array(
+                d, self.symbol_size[0], self.symbol_alpha[0]
+                )
+            img1 = self.get_scatter_array(
+                d, self.symbol_size[1], self.symbol_alpha[1]
+                )
+            # imageの格納, binarizeはしない
+            array0[i, :, :] = img0
+            array1[i, :, :] = img1
+        # NHWC形式になるように次元を追加
+        array0 = array0[..., np.newaxis]
+        array1 = array1[..., np.newaxis]
+        # npzで保存
+        if test_view:
+            print("input example")
+            self.imshow(array0[0, :, :, 0])
+            print("output example")
+            self.imshow(array1[0, :, :, 0])
+        now = datetime.datetime.now().strftime('%Y%m%d')
+        if len(name) > 0:
+            fileout = outdir + SEP + f"dataset_{name}_{now}.npz"
+        else:
+            fileout = outdir + SEP + f"dataset_{now}.npz"
+        np.savez_compressed(
+            fileout, input=array0, output=array1, specimen=self.specimen
+            )
+
+
+    def get_scatter_array(self, data, size=30, alpha=0.5):
+        """
+        データをヒストグラムへと変換し, そのarrayを得る
+        
+        """
+        # prepare histogram
+        fig = plt.figure(figsize=self._figsize, dpi=self._dpi)
+        ax = fig.add_subplot(1, 1, 1)
+        plt.gca().spines["top"].set_visible(False)
+        plt.gca().spines["right"].set_visible(False)
+        plt.gca().spines["bottom"].set_visible(False)
+        plt.gca().spines["left"].set_visible(False)
+        plt.tick_params(
+            labeltop=False, labelright=False, labelbottom=False, labelleft=False,
+            top=False, right=False, bottom=False, left=False
+            )
+        # rangeを考慮しない方針
+        ax.scatter(
+            data[:, 0], data[:, 1],
+            color="black", s=size, alpha=alpha
+            )
+        # convert array
+        fig.canvas.draw() # レンダリング
+        data = fig.canvas.tostring_rgb() # rgbのstringとなっている
+        w, h = fig.canvas.get_width_height()
+        c = len(data) // (w * h) # channelを算出
+        img = np.frombuffer(data, dtype=np.uint8).reshape(h, w, c)
+        plt.close()
+        return img
+
+
+    def binarize(self, data):
+        """ 得られたarrayを二値化する """
+        data = data.sum(axis=2) # h, w, cであり, blackなので255, 0のみとなっている
+        data = np.where(data > 0, 255, 0)
+        return data
+
+
+    def imshow(self, data, cmap='binary_r', figsize=None):
+        """ show pixelized data """
+        plt.figure(figsize=figsize)
+        plt.tick_params(
+            labeltop=False, labelright=False, labelbottom=False, labelleft=False,
+            top=False, right=False, bottom=False, left=False
+            )
+        plt.imshow(data, aspect='equal', cmap=cmap)
+        plt.show()
+
+    
+    def _test_view(self, data, test_size, test_alpha):
+        """ refer to set_data """
+        num = 4
+        idx = list(range(len(data)))
+        np.random.shuffle(idx)
+        fig, axes = plt.subplots(1, num, figsize=(2.5 * num, 2.5))
+        for i in range(num):
+            axes[i].scatter(
+                data[:, 0], data[:, 1],
+                color="black", s=test_size, alpha=test_alpha
+                )
         plt.show()
