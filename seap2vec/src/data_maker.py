@@ -475,7 +475,7 @@ class ScatterMaker:
     
     """
     def __init__(
-            self, pixel:tuple=(64, 64), symbol_size:tuple=(30, 60),
+            self, pixel:tuple=(64, 64), symbol_size:tuple=(32, 64),
             symbol_alpha:tuple=(0.5, 0.3)
             ):
         assert symbol_size[0] <= symbol_size[1]
