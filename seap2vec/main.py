@@ -241,7 +241,7 @@ class SEAP2vec:
         self.model.load_state_dict(torch.load(url))
 
 
-    def encode(self, x):
+    def inference(self, x):
         # load
         if self.model is None:
             raise ValueError("!! No trained model !!")
@@ -252,12 +252,20 @@ class SEAP2vec:
         dataloader = dh.prep_dataloader(dataset, self.batch_size, shuffle=False)
         self.model.eval() # test (validation)
         mus = []
+        logvars = []
+        outputs = []
         with torch.no_grad():
             for data_in, data_out in dataloader:
                 data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE)
                 output, mu, logvar = self.model(data_in)
                 mus.append(mu)
+                logvars.append(logvar)
+                outputs.append(output)
         mus = torch.cat(mus, axis=0)
+        logvars = torch.cat(logvars, axis=0)
+        outputs = torch.cat(outputs, axis=0)
         if torch.cuda.is_available():
             mus = mus.cpu().detach().numpy()
-        return mus
+            logvars = logvars.cpu().detach().numpy()
+            outputs = outputs.cpu().detach().numpy()
+        return mus, logvars, outputs
