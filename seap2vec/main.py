@@ -142,6 +142,7 @@ class SEAP2vec:
             optimizer.zero_grad() # reset gradients
             output, mu, logvar = model(data_in) # forward
             loss, rl, kld = criterion(output, data_out/255, mu, logvar, self.beta) # calculate loss
+            # data_outが[0, 255]なので, BCElossを使うためには255で割り込む必要がある
             loss.backward() # backpropagation
             optimizer.step() # update parameters
             train_batch_loss.append(loss.item())
