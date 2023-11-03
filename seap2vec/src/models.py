@@ -73,7 +73,7 @@ class Encoder(nn.Module):
         h = self.b3(h)
         print("b3", h.shape)
         h = self.b4(h)
-        print("b3", h.shape)
+        print("b4", h.shape)
         return h
 
 

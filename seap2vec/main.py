@@ -40,7 +40,7 @@ class SEAP2vec:
             self.pooling_kernels = (2, 2)
             self.enc_out = 16
         elif self.dim_img==2:
-            self.pooling_kernels = (2, 2)
+            self.pooling_kernels = (4, 4)
             self.enc_out = 16
         else:
             raise ValueError("!! dim_img should be 1 or 2 !!")
