@@ -77,12 +77,6 @@ class SEAP2vec:
         inference用を読み込む際のものも用意しておくと楽
         
         """
-        # train_trans = transforms.Compose([
-        #     transforms.ToTensor(),
-        # ])
-        # test_trans = transforms.Compose([
-        #     transforms.ToTensor(),
-        # ])
         dataset = np.load(self.datafile)
         input = dataset["input"]
         output = dataset["output"]
@@ -113,10 +107,6 @@ class SEAP2vec:
             input[:idx], output[:idx], input[idx:], output[idx:],
             batch_size=self.batch_size, transform=(tfn_train, tfn_test)
             )
-        # train_loader, test_loader = dh.prep_data(
-        #     input[:idx], output[:idx], input[idx:], output[idx:],
-        #     batch_size=self.batch_size, transform=(train_trans, test_trans)
-        #     )
         return train_loader, test_loader
 
 
@@ -278,3 +268,14 @@ class SEAP2vec:
             logvars = logvars.cpu().detach().numpy()
             outputs = outputs.cpu().detach().numpy()
         return mus, logvars, outputs
+    
+
+    def imshow(self, data, cmap='binary_r', figsize=None):
+        """ show pixelized data """
+        plt.figure(figsize=figsize)
+        plt.tick_params(
+            labeltop=False, labelright=False, labelbottom=False, labelleft=False,
+            top=False, right=False, bottom=False, left=False
+            )
+        plt.imshow(data, aspect='equal', cmap=cmap)
+        plt.show()
