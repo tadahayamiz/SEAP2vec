@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import os
 import matplotlib.pyplot as plt
+import scipy.stats as st
 # import cv2
 from collections import Counter
 from itertools import chain
@@ -490,7 +491,7 @@ class ScatterMaker(DataMaker):
     
     """
     def __init__(
-            self, pixel:tuple=(64, 64), symbol_size:tuple=(32, 64),
+            self, pixel:tuple=(64, 64), symbol_size:tuple=(16, 32),
             symbol_alpha:tuple=(0.4, 0.2)
             ):
         super().__init__()
@@ -639,7 +640,7 @@ class ContourMaker(DataMaker):
     
     """
     def __init__(
-            self, pixel:tuple=(64, 64), levels:tuple=(32, 16),
+            self, pixel:tuple=(64, 64), levels:tuple=(64, 32),
             ):
         super().__init__()
         assert levels[0] >= levels[1]
@@ -713,11 +714,14 @@ class ContourMaker(DataMaker):
             )
 
 
-    def get_contour_array(self, data, levels):
+    def get_contour_array(self, data, levels, norm="log"):
         """
         データを等高線図へと変換し, そのarrayを得る
         
         """
+        # kde
+        xx, yy, z, xminmax, yminmax = self._kde(data)
+
         # prepare histogram
         fig = plt.figure(figsize=self._figsize, dpi=self._dpi)
         ax = fig.add_subplot(1, 1, 1)
@@ -729,11 +733,12 @@ class ContourMaker(DataMaker):
             labeltop=False, labelright=False, labelbottom=False, labelleft=False,
             top=False, right=False, bottom=False, left=False
             )
-        # rangeを考慮しない方針
+        ax.set_xlim(xminmax)
+        ax.set_ylim(yminmax)
         ax.contourf(
-            data[:, 0], data[:, 1],
-            cmap="binary_r", levels=levels,
+            xx, yy, z, cmap="Greys", levels=levels, norm=norm
             )
+
         # convert array
         fig.canvas.draw() # レンダリング
         data = fig.canvas.tostring_rgb() # rgbのstringとなっている
@@ -762,17 +767,34 @@ class ContourMaker(DataMaker):
         plt.imshow(data, aspect='equal', cmap=cmap)
         plt.show()
 
-    
-    def _test_view(self, data, test_levels):
+
+    def _kde(self, data, grid=(128j, 128j), bw_method=None):
+        """ conduct KDE """
+        x = data[:, 0]
+        y = data[:, 1]
+        xmin, xmax = 0, np.max(x) * 1.01
+        ymin, ymax = 0, np.max(y) * 1.01
+        xx, yy = np.mgrid[xmin:xmax:grid[0], ymin:ymax:grid[1]]
+        positions = np.vstack([xx.ravel(), yy.ravel()])
+        kernel = st.gaussian_kde(data.T, bw_method=bw_method)
+        z = np.reshape(kernel(positions).T, xx.shape)
+        return xx, yy, z, (xmin, xmax), (ymin, ymax)
+
+
+    def _test_view(self, data, test_levels, norm="log"):
         """ refer to set_data """
         num = 4
         idx = list(range(len(data)))
         np.random.shuffle(idx)
         fig, axes = plt.subplots(1, num, figsize=(2.5 * num, 2.5))
         for i in range(num):
-            axes[i].contourf(
-                data[i][:, 0], data[i][:, 1],
-                levels=test_levels, cmap="binary_r"
+            xx, yy, z, xminmax, yminmax = self._kde(data[i])
+            ax = fig.gca()
+            ax.set_xlim(xminmax)
+            ax.set_ylim(yminmax)
+            cfset = axes[i].contourf(
+                xx, yy, z, cmap="Greys", levels=test_levels,
+                norm=norm,
                 )
         plt.tight_layout()
         plt.show()
