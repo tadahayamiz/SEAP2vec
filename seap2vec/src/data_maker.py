@@ -308,9 +308,9 @@ class Data:
 
 
 class DataMaker:
-    def __init__(self, pixel):
-        self.pixel = pixel
-        self._dpi = 100
+    def __init__(self):
+        self.pixel = None
+        self._dpi = None
         self.data = None
         self.specimen = None
 
