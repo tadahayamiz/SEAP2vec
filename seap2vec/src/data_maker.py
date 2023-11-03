@@ -492,12 +492,13 @@ class ScatterMaker(DataMaker):
     """
     def __init__(
             self, pixel:tuple=(64, 64), symbol_size:tuple=(16, 32),
-            symbol_alpha:tuple=(0.4, 0.2)
+            symbol_alpha:tuple=(0.4, 0.2), log:bool=False
             ):
         super().__init__()
         assert symbol_size[0] <= symbol_size[1]
         self.pixel = pixel
         self._dpi = 100
+        self.log = log
         self._figsize = pixel[0] / self._dpi, pixel[1] / self._dpi
         self.symbol_size = symbol_size
         self.symbol_alpha = symbol_alpha
@@ -510,6 +511,8 @@ class ScatterMaker(DataMaker):
             ):
         """ setter """
         self.data = data
+        if self.log:
+            self.data = np.log2(self.data)
         # plot
         if test_size is None:
             test_size = self.symbol_size[0]
