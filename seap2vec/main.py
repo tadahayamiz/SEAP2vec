@@ -32,7 +32,7 @@ class SEAP2vec:
     def __init__(
             self, workdir:str="", datafile:str="", dim_img:int=1,
             seed:int=222, num_epoch:int=100, batch_size:int=128, lr:float=1e-4,
-            n_monitor:int=1000, dim_latent=64, beta=1e-7
+            n_monitor:int=1000, dim_latent=64, beta=0.1
             ):
         self.workdir = workdir
         self.dim_img = dim_img
@@ -145,7 +145,7 @@ class SEAP2vec:
             data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE) # put data on GPU
             optimizer.zero_grad() # reset gradients
             output, mu, logvar = model(data_in) # forward
-            loss, rl, kld = criterion(output, data_out, mu, logvar) # calculate loss
+            loss, rl, kld = criterion(output, data_out, mu, logvar, self.beta) # calculate loss
             loss.backward() # backpropagation
             optimizer.step() # update parameters
             train_batch_loss.append(loss.item())
