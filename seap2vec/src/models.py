@@ -67,13 +67,9 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         h = self.b1(x)
-        print("b1", h.shape)
         h = self.b2(h)
-        print("b2", h.shape)
         h = self.b3(h)
-        print("b3", h.shape)
         h = self.b4(h)
-        print("b4", h.shape)
         return h
 
 
