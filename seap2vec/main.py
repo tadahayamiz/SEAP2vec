@@ -159,7 +159,7 @@ class SEAP2vec:
             for data_in, data_out in test_loader:
                 data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE)
                 output, mu, logvar = model(data_in)
-                loss, rl, kld = criterion(output, data_out, mu, logvar, self.beta)
+                loss, rl, kld = criterion(output, data_out/255, mu, logvar, self.beta)
                 test_batch_loss.append(loss.item())
                 test_batch_rl.append(rl.item())
                 test_batch_kld.append(kld.item())
