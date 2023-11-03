@@ -32,15 +32,22 @@ class SEAP2vec:
     def __init__(
             self, workdir:str="", datafile:str="", dim_img:int=1,
             seed:int=222, num_epoch:int=100, batch_size:int=128, lr:float=1e-4,
-            n_monitor:int=1000, encoder_output_size=16, dim_latent=64
+            n_monitor:int=1000, dim_latent=64
             ):
         self.workdir = workdir
         self.dim_img = dim_img
+        if self.dim_img==1:
+            self.pooling_kernels = (2, 2)
+            self.enc_out = 16
+        elif self.dim_img==2:
+            self.pooling_kernels = (2, 2)
+            self.enc_out = 16
+        else:
+            raise ValueError("!! dim_img should be 1 or 2 !!")
         self.seed = 222
         self.num_epoch = num_epoch
         self.batch_size = batch_size
         self.lr = lr
-        self.enc_out = encoder_output_size
         self.dim_latent = dim_latent
         self.n_monitor = n_monitor
         utils.fix_seed(seed=seed, fix_gpu=False) # for seed control
@@ -84,10 +91,16 @@ class SEAP2vec:
         input = torch.tensor(input).float()
         output = torch.tensor(output).float()
         if self.dim_img == 1:
-            tfn = [transforms.RandomAffine(degrees=0, translate=(0.1, 0.0))]
+            tfn = [
+                transforms.RandomAffine(degrees=0, translate=(0.1, 0.0), fill=255),
+                transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
+                ]
             # 1Dの場合はx軸方向のみ不変
         elif self.dim_img == 2:
-            tfn = [transforms.RandomAffine(degrees=0, translate=(0.1, 0.1))]
+            tfn = [
+                transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), fill=255),
+                transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
+                ]
             # 2Dの場合はx,y両方不変
         train_loader, test_loader = dh.prep_data(
             input[:idx], output[:idx], input[idx:], output[idx:],
@@ -106,7 +119,7 @@ class SEAP2vec:
 
         """
         model = VAE(
-            color_channels=1, pooling_kernels=(2, 2),
+            color_channels=1, pooling_kernels=self.pooling_kernels,
             encoder_output_size=self.enc_out, dim_latent=self.dim_latent
             )
         model.to(DEVICE)
@@ -131,11 +144,6 @@ class SEAP2vec:
             data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE) # put data on GPU
             optimizer.zero_grad() # reset gradients
             output, mu, logvar = model(data_in) # forward
-
-
-            # print(output)
-
-
             loss, rl, kld = criterion(output, data_out, mu, logvar) # calculate loss
             loss.backward() # backpropagation
             optimizer.step() # update parameters

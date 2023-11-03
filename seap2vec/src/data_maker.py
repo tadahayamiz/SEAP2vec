@@ -681,6 +681,8 @@ class ContourMaker(DataMaker):
         """
         assert len(outdir) > 0
         assert (ratio > 0) & (ratio < 1) 
+        print("!! Note: time-consuming process !!")
+        start = time.time()
         # dataの準備
         array0 = np.zeros((len(self.data), self.pixel[0], self.pixel[1]))
         array1 = np.zeros((len(self.data), self.pixel[0], self.pixel[1]))
@@ -712,6 +714,10 @@ class ContourMaker(DataMaker):
         np.savez_compressed(
             fileout, input=array0, output=array1, specimen=self.specimen
             )
+        end = time.time()
+        elapsed = int((end - start) / 60)
+        print("> completed")
+        print(f"> eplapsed time: {elapsed} min")
 
 
     def get_contour_array(self, data, levels, norm="log"):

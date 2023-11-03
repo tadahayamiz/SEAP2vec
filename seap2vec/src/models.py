@@ -62,15 +62,16 @@ class Encoder(nn.Module):
         ## 基本バイナリ画像のためin_channels=1
         self.b2 = EncoderBlock(32, 64, kernel=3, stride=1, padding=0)
         self.b3 = EncoderBlock(64, 128, kernel=3, stride=pooling_kernels[0], padding=1)
-        ## kernel検討の余地あり, 2
         self.b4 = EncoderBlock(128, 256, kernel=3, stride=pooling_kernels[1], padding=1)
-        ## kernel検討の余地あり, 2
 
 
     def forward(self, x):
         h = self.b1(x)
+        print("b1", h.shape)
         h = self.b2(h)
+        print("b2", h.shape)
         h = self.b3(h)
+        print("b3", h.shape)
         return self.b4(h)
 
 
