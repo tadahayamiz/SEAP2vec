@@ -644,11 +644,13 @@ class ContourMaker(DataMaker):
     """
     def __init__(
             self, pixel:tuple=(64, 64), levels:tuple=(64, 32),
+            log:bool=False
             ):
         super().__init__()
         assert levels[0] >= levels[1]
         self.pixel = pixel
         self._dpi = 100
+        self.log = log
         self._figsize = pixel[0] / self._dpi, pixel[1] / self._dpi
         self.levels = levels
         self.data = None
@@ -660,6 +662,8 @@ class ContourMaker(DataMaker):
             ):
         """ setter """
         self.data = data
+        if self.log:
+            self.data = [np.log2(d) for d in data]
         # plot
         if test_levels is None:
             test_levels = self.levels[0]
