@@ -250,6 +250,9 @@ class Data:
             rng.shuffle(idx)
             res = [res[i] for i in idx]
             specimen = [specimen[i] for i in idx]
+        
+        print(len(res), len(specimen))
+
         return res, specimen
     
 
