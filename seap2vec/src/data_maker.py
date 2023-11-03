@@ -210,9 +210,6 @@ class Data:
         for i in range(n_sample):
             tmp_idx = idx.copy()
             rng.shuffle(tmp_idx)
-
-            print(X[tmp_idx, :])
-
             res.append(X[tmp_idx, :])
         return res
 
@@ -232,6 +229,8 @@ class Data:
         specimens.sort()
         print(f"> handling {len(specimens)} specimens")
         n_sample = samplesize // len(specimens) # n_sampleを決める
+        if len(n_sample) == 0:
+            raise ValueError("!! samplesize is too small compared with specimens !!")
         res = []
         specimen = []
         if self.dim == 1:
