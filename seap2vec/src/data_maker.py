@@ -512,7 +512,7 @@ class ScatterMaker(DataMaker):
         """ setter """
         self.data = data
         if self.log:
-            self.data = np.log2(self.data)
+            self.data = [np.log2(d) for d in data]
         # plot
         if test_size is None:
             test_size = self.symbol_size[0]
