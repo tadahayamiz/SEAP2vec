@@ -211,6 +211,7 @@ class Data:
             tmp_idx = idx.copy()
             rng.shuffle(tmp_idx)
             res.append(X[tmp_idx, :])
+        print(res)
         return res
 
 
@@ -239,9 +240,6 @@ class Data:
         elif self.dim == 2:
             for s in tqdm(specimens):
                 tmp = self.sample2(s, n_sample, ratio, v_name, s_name)
-
-                print(tmp)
-
                 res.append(tmp)
                 specimen.append([s] * n_sample)
         else:
