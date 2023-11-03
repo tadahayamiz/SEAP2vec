@@ -642,7 +642,7 @@ class ContourMaker(DataMaker):
             self, pixel:tuple=(64, 64), levels:tuple=(32, 16),
             ):
         super().__init__()
-        assert levels[0] <= levels[1]
+        assert levels[0] >= levels[1]
         self.pixel = pixel
         self._dpi = 100
         self._figsize = pixel[0] / self._dpi, pixel[1] / self._dpi
