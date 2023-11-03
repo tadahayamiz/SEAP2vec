@@ -145,21 +145,12 @@ class SEAP2vec:
             data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE) # put data on GPU
             optimizer.zero_grad() # reset gradients
             output, mu, logvar = model(data_in) # forward
-
-
-            print(output[0])
-            print(data_out[0])
-            break
-
-
-            loss, rl, kld = criterion(output, data_out, mu, logvar, self.beta) # calculate loss
+            loss, rl, kld = criterion(output, data_out/255, mu, logvar, self.beta) # calculate loss
             loss.backward() # backpropagation
             optimizer.step() # update parameters
             train_batch_loss.append(loss.item())
             train_batch_rl.append(rl.item())
-            train_batch_kld.append(kld.item())
-        return 0
-    
+            train_batch_kld.append(kld.item())    
         model.eval() # test (validation)
         test_batch_loss = []
         test_batch_rl = []
