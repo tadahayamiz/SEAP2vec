@@ -77,12 +77,6 @@ class SEAP2vec:
         inference用を読み込む際のものも用意しておくと楽
         
         """
-        # train_trans = transforms.Compose([
-        #     transforms.ToTensor(),
-        # ])
-        # test_trans = transforms.Compose([
-        #     transforms.ToTensor(),
-        # ])
         dataset = np.load(self.datafile)
         input = dataset["input"]
         output = dataset["output"]
@@ -92,25 +86,27 @@ class SEAP2vec:
         input = torch.tensor(input).float()
         output = torch.tensor(output).float()
         if self.dim_img == 1:
-            tfn = [
+            tfn_train = transforms.Compose([
                 transforms.RandomAffine(degrees=0, translate=(0.1, 0.0), fill=255),
                 transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
-                ]
+                ])
+            tfn_test = transforms.Compose([
+                transforms.GaussianBlur(kernel_size=3, sigma=1.0)
+                ])
             # 1Dの場合はx軸方向のみ不変
         elif self.dim_img == 2:
-            tfn = [
+            tfn_train = transforms.Compose([
                 transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), fill=255),
                 transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
-                ]
+                ])
+            tfn_test = transforms.Compose([
+                transforms.GaussianBlur(kernel_size=3, sigma=1.0)
+                ])
             # 2Dの場合はx,y両方不変
         train_loader, test_loader = dh.prep_data(
             input[:idx], output[:idx], input[idx:], output[idx:],
-            batch_size=self.batch_size, transform=(tfn, tfn)
+            batch_size=self.batch_size, transform=(tfn_train, tfn_test)
             )
-        # train_loader, test_loader = dh.prep_data(
-        #     input[:idx], output[:idx], input[idx:], output[idx:],
-        #     batch_size=self.batch_size, transform=(train_trans, test_trans)
-        #     )
         return train_loader, test_loader
 
 
@@ -160,15 +156,19 @@ class SEAP2vec:
             for data_in, data_out in test_loader:
                 data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE)
                 output, mu, logvar = model(data_in)
-                loss, rl, kld = criterion(output, data_out, mu, logvar, self.beta)
+                loss, rl, kld = criterion(output, data_out/255, mu, logvar, self.beta)
                 test_batch_loss.append(loss.item())
                 test_batch_rl.append(rl.item())
                 test_batch_kld.append(kld.item())
         train_loss = (
-            np.mean(train_batch_loss), np.mean(train_batch_rl), np.mean(train_batch_kld)
+            np.mean(train_batch_loss) / self.batch_size,
+            np.mean(train_batch_rl) / self.batch_size,
+            np.mean(train_batch_kld) / self.batch_size
             )
         test_loss = (
-            np.mean(test_batch_loss), np.mean(test_batch_rl), np.mean(test_batch_kld)
+            np.mean(test_batch_loss) / self.batch_size,
+            np.mean(test_batch_rl) / self.batch_size,
+            np.mean(test_batch_kld) / self.batch_size
             )
         return model, train_loss, test_loss
 
@@ -200,6 +200,9 @@ class SEAP2vec:
                 self.logger.info(
                     f'epoch: {epoch} // train_loss: {train_epoch_loss[0]:.4f} // valid_loss: {test_epoch_loss[0]:.4f}'
                     )
+                print(
+                    f'epoch: {epoch} // train_loss: {train_epoch_loss[0]:.4f} // valid_loss: {test_epoch_loss[0]:.4f}'
+                )
         return model, (train_loss, train_rl, train_kld), (test_loss, test_rl, test_kld)
 
 
@@ -270,3 +273,14 @@ class SEAP2vec:
             logvars = logvars.cpu().detach().numpy()
             outputs = outputs.cpu().detach().numpy()
         return mus, logvars, outputs
+    
+
+    def imshow(self, data, cmap='binary_r', figsize=None):
+        """ show pixelized data """
+        plt.figure(figsize=figsize)
+        plt.tick_params(
+            labeltop=False, labelright=False, labelbottom=False, labelleft=False,
+            top=False, right=False, bottom=False, left=False
+            )
+        plt.imshow(data, aspect='equal', cmap=cmap)
+        plt.show()
