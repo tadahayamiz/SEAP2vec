@@ -199,6 +199,9 @@ class SEAP2vec:
                 self.logger.info(
                     f'epoch: {epoch} // train_loss: {train_epoch_loss[0]:.4f} // valid_loss: {test_epoch_loss[0]:.4f}'
                     )
+                print(
+                    f'epoch: {epoch} // train_loss: {train_epoch_loss[0]:.4f} // valid_loss: {test_epoch_loss[0]:.4f}'
+                )
         return model, (train_loss, train_rl, train_kld), (test_loss, test_rl, test_kld)
 
 
