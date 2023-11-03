@@ -160,10 +160,14 @@ class SEAP2vec:
                 test_batch_rl.append(rl.item())
                 test_batch_kld.append(kld.item())
         train_loss = (
-            np.mean(train_batch_loss), np.mean(train_batch_rl), np.mean(train_batch_kld)
+            np.mean(train_batch_loss) / self.batch_size,
+            np.mean(train_batch_rl) / self.batch_size,
+            np.mean(train_batch_kld) / self.batch_size
             )
         test_loss = (
-            np.mean(test_batch_loss), np.mean(test_batch_rl), np.mean(test_batch_kld)
+            np.mean(test_batch_loss) / self.batch_size,
+            np.mean(test_batch_rl) / self.batch_size,
+            np.mean(test_batch_kld) / self.batch_size
             )
         return model, train_loss, test_loss
 
