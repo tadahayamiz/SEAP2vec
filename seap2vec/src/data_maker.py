@@ -195,7 +195,6 @@ class Data:
 
         """
         tmp = self.data[self.data[s_name]==sid]
-        p = self.dim
         tmp0 = tmp[tmp["color"]==self.colors[0]]
         tmp1 = tmp[tmp["color"]==self.colors[1]]
         common_well = set(tmp0["well_id"]) & set(tmp1["well_id"])
@@ -241,6 +240,8 @@ class Data:
                 tmp = self.sample2(s, n_sample, ratio, v_name, s_name)
                 res.append(tmp)
                 specimen.append([s] * n_sample)
+        else:
+            raise ValueError("!! check |colors|, which should be 1 or 2 !!")
         res = list(chain.from_iterable(res))
         specimen = list(chain.from_iterable(specimen))
         if shuffle:
