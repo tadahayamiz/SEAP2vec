@@ -32,7 +32,7 @@ class SEAP2vec:
     def __init__(
             self, workdir:str="", datafile:str="", dim_img:int=1,
             seed:int=222, num_epoch:int=100, batch_size:int=128, lr:float=1e-4,
-            n_monitor:int=1000, dim_latent=64
+            n_monitor:int=1000, dim_latent=64, beta=1e-7
             ):
         self.workdir = workdir
         self.dim_img = dim_img
@@ -49,6 +49,7 @@ class SEAP2vec:
         self.batch_size = batch_size
         self.lr = lr
         self.dim_latent = dim_latent
+        self.beta = beta
         self.n_monitor = n_monitor
         utils.fix_seed(seed=seed, fix_gpu=False) # for seed control
         self._now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
@@ -158,7 +159,7 @@ class SEAP2vec:
             for data_in, data_out in test_loader:
                 data_in, data_out = data_in.to(DEVICE), data_out.to(DEVICE)
                 output, mu, logvar = model(data_in)
-                loss, rl, kld = criterion(output, data_out, mu, logvar)
+                loss, rl, kld = criterion(output, data_out, mu, logvar, self.beta)
                 test_batch_loss.append(loss.item())
                 test_batch_rl.append(rl.item())
                 test_batch_kld.append(kld.item())

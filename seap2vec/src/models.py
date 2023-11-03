@@ -143,10 +143,11 @@ class VAE(nn.Module):
         return out, mu, logvar
 
 
-def loss_function(recon_x, x, mu, logvar):
+def loss_function(recon_x, x, mu, logvar, beta):
     # https://arxiv.org/abs/1312.6114 (Appendix B)
     # RL = F.binary_cross_entropy(recon_x, x, size_average=False)        
     criterion = nn.BCEWithLogitsLoss(size_average=False)
     RL = criterion(recon_x, x)
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    KLD = beta * KLD # 補正
     return RL + KLD, RL, KLD
