@@ -210,8 +210,10 @@ class Data:
         for i in range(n_sample):
             tmp_idx = idx.copy()
             rng.shuffle(tmp_idx)
+
+            print(X[tmp_idx, :])
+
             res.append(X[tmp_idx, :])
-        print(res)
         return res
 
 
