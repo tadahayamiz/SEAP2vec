@@ -72,7 +72,9 @@ class Encoder(nn.Module):
         print("b2", h.shape)
         h = self.b3(h)
         print("b3", h.shape)
-        return self.b4(h)
+        h = self.b4(h)
+        print("b3", h.shape)
+        return h
 
 
 class Decoder(nn.Module):
@@ -88,7 +90,8 @@ class Decoder(nn.Module):
         h = self.b1(x)
         h = self.b2(h)
         h = self.b3(h)
-        return self.b4(h)
+        h = self.b4(h)
+        return h
 
 
 class VAE(nn.Module):
