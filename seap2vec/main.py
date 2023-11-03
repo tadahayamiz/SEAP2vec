@@ -92,22 +92,22 @@ class SEAP2vec:
         input = torch.tensor(input).float()
         output = torch.tensor(output).float()
         if self.dim_img == 1:
-            tfn_train = [
+            tfn_train = transforms.Compose([
                 transforms.RandomAffine(degrees=0, translate=(0.1, 0.0), fill=255),
                 transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
-                ]
-            tfn_test = [
+                ])
+            tfn_test = transforms.Compose([
                 transforms.GaussianBlur(kernel_size=3, sigma=1.0)
-                ]
+                ])
             # 1Dの場合はx軸方向のみ不変
         elif self.dim_img == 2:
-            tfn_train = [
+            tfn_train = transforms.Compose([
                 transforms.RandomAffine(degrees=0, translate=(0.1, 0.1), fill=255),
                 transforms.GaussianBlur(kernel_size=3, sigma=(1.0, 2.0))
-                ]
-            tfn_test = [
+                ])
+            tfn_test = transforms.Compose([
                 transforms.GaussianBlur(kernel_size=3, sigma=1.0)
-                ]
+                ])
             # 2Dの場合はx,y両方不変
         train_loader, test_loader = dh.prep_data(
             input[:idx], output[:idx], input[idx:], output[idx:],
