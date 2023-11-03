@@ -195,9 +195,6 @@ class Data:
 
         """
         tmp = self.data[self.data[s_name]==sid]
-
-        print(tmp.shape)
-
         tmp0 = tmp[tmp["color"]==self.colors[0]]
         tmp1 = tmp[tmp["color"]==self.colors[1]]
         common_well = set(tmp0["well_id"]) & set(tmp1["well_id"])
@@ -206,6 +203,9 @@ class Data:
         x0 = tmp0[v_name].values
         x1 = tmp1[v_name].values
         X = np.array([x0, x1]).T
+
+        print(X.shape)
+
         n = int(tmp0.shape[0] * ratio) 
         idx = list(range(n))
         rng = np.random.default_rng()
