@@ -362,12 +362,12 @@ class HistMaker(DataMaker):
         # plot
         if test_bins is None:
             test_bins = self.bins[0]
-        self._test_view(data, test_bins, limit)
+        self._test_view(data, test_bins)
 
     
     def main(
             self, outdir:str="", name:str="", ratio:float=0.9,
-            bins:tuple=(), test_view:bool=True, limit:tuple=()
+            bins:tuple=(), test_view:bool=True
             ):
         """
         dataをまとめてhistogram arrayへと変換, npzで保存する
@@ -435,9 +435,6 @@ class HistMaker(DataMaker):
             labeltop=False, labelright=False, labelbottom=False, labelleft=False,
             top=False, right=False, bottom=False, left=False
             )
-        # ax.hist(
-        #     data, color="black", density=True, bins=bins, range=self.limit
-        #     )
         # rangeを考慮しない方針
         ax.hist(data, color="black", bins=bins)
         # convert array
@@ -468,7 +465,7 @@ class HistMaker(DataMaker):
         plt.show()
 
     
-    def _test_view(self, data, test_bins, limit):
+    def _test_view(self, data, test_bins):
         """ refer to set_data """
         num = 4
         idx = list(range(len(data)))
@@ -494,7 +491,7 @@ class ScatterMaker(DataMaker):
     """
     def __init__(
             self, pixel:tuple=(64, 64), symbol_size:tuple=(32, 64),
-            symbol_alpha:tuple=(0.5, 0.3)
+            symbol_alpha:tuple=(0.4, 0.2)
             ):
         super().__init__()
         assert symbol_size[0] <= symbol_size[1]
