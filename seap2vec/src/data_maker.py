@@ -203,9 +203,6 @@ class Data:
         x0 = tmp0[v_name].values
         x1 = tmp1[v_name].values
         X = np.array([x0, x1]).T
-
-        print(X.shape)
-
         n = int(tmp0.shape[0] * ratio) 
         idx = list(range(n))
         rng = np.random.default_rng()
@@ -246,6 +243,10 @@ class Data:
                 specimen.append([s] * n_sample)
         else:
             raise ValueError("!! check |colors|, which should be 1 or 2 !!")
+
+        print(len(res), len(specimen))
+
+
         res = list(chain.from_iterable(res))
         specimen = list(chain.from_iterable(specimen))
         if shuffle:
