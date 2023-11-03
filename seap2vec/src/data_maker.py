@@ -239,14 +239,13 @@ class Data:
         elif self.dim == 2:
             for s in tqdm(specimens):
                 tmp = self.sample2(s, n_sample, ratio, v_name, s_name)
+
+                print(tmp)
+
                 res.append(tmp)
                 specimen.append([s] * n_sample)
         else:
             raise ValueError("!! check |colors|, which should be 1 or 2 !!")
-
-        print(len(res), len(specimen))
-
-
         res = list(chain.from_iterable(res))
         specimen = list(chain.from_iterable(specimen))
         if shuffle:
