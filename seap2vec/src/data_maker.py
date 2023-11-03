@@ -225,7 +225,8 @@ class Data:
         2dなら[2d-array]
         
         """
-        specimens = set(list(self.data[s_name]))
+        specimens = list(set(list(self.data[s_name])))
+        specimens.sort()
         print(f"> handling {len(specimens)} specimens")
         n_sample = samplesize // len(specimens) # n_sampleを決める
         res = []
@@ -242,6 +243,10 @@ class Data:
                 specimen.append([s] * n_sample)
         else:
             raise ValueError("!! check |colors|, which should be 1 or 2 !!")
+
+        print(res)
+        print(specimen)
+
         res = list(chain.from_iterable(res))
         specimen = list(chain.from_iterable(specimen))
         if shuffle:
@@ -250,9 +255,6 @@ class Data:
             rng.shuffle(idx)
             res = [res[i] for i in idx]
             specimen = [specimen[i] for i in idx]
-        
-        print(len(res), len(specimen))
-
         return res, specimen
     
 
