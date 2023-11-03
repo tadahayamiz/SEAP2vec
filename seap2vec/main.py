@@ -158,6 +158,8 @@ class SEAP2vec:
             train_batch_loss.append(loss.item())
             train_batch_rl.append(rl.item())
             train_batch_kld.append(kld.item())
+        return 0
+    
         model.eval() # test (validation)
         test_batch_loss = []
         test_batch_rl = []
