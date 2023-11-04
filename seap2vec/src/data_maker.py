@@ -498,7 +498,7 @@ class ScatterMaker(DataMaker):
             symbol_alpha:tuple=(0.4, 0.2), log:bool=False
             ):
         super().__init__()
-        assert symbol_size[0] <= symbol_size[1]
+        # assert symbol_size[0] <= symbol_size[1]
         self.pixel = pixel
         self._dpi = 100
         self.log = log
