@@ -283,7 +283,7 @@ class Data:
 
 
     def imshow2(
-            self, sid:int, symbol_size:int=30, symbol_alpha:float=0.5,
+            self, sid:int, symbol_size:int=8, symbol_alpha:float=0.4,
             linewidths:float=0.0, pixel:tuple=(64, 64), dpi:int=100,
             ratio:float=0.9, condition:dict=dict(),
             outdir:str="", v_name:str="value", s_name:str="sample_id",
@@ -300,13 +300,16 @@ class Data:
         fig = plt.figure(figsize=figsize)
         plt.rcParams["font.size"] = fontsize
         ax = fig.add_subplot(1, 1, 1)
+        ax.set_title(sid)
         plt.gca().spines["top"].set_visible(False)
         plt.gca().spines["right"].set_visible(False)
         ax.scatter(
-            data[sid][:, 0], data[sid][:, 1],
+            data[:, 0], data[:, 1],
             color="black", s=symbol_size, alpha=symbol_alpha,
             linewidths=linewidths
             )
+        ax.set_xlabel(self.colors[0])
+        ax.set_ylabel(self.colors[1])
         if len(outdir) > 0:
             plt.savefig(outdir + SEP + f"scatter_{sid}.png")
         plt.show()
