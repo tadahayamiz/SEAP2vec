@@ -65,7 +65,7 @@ class SEAP2vec:
         if not os.path.exists(self.dir_name):
             os.makedirs(self.dir_name)
         self.logger = utils.init_logger(
-            __name__, self.dir_name, self._now, level_console='info', level_file='debug'
+            __name__, self.dir_name, self._now, level_console='debug', level_file='debug'
             )
         self.model = None
 
