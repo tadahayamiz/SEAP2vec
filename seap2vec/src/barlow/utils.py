@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri 29 15:46:32 2022
+Created on Tue Jul 23 12:09:08 2019
 
-utilities
+utils
 
 @author: tadahaya
 """
-import pandas as pd
-import random
-from sklearn import metrics
 import json, os, math
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,8 +15,6 @@ import torchvision
 import torchvision.transforms as transforms
 
 from .models import VitForClassification
-
-SEP = os.sep
 
 def save_experiment(
         experiment_name, config, model, train_losses, test_losses,
@@ -169,55 +164,3 @@ def visualize_attention(model, output=None, device="cuda"):
     if output is not None:
         plt.savefig(output)
     plt.show()
-
-
-# assist model building
-def fix_seed(seed:int=None,fix_gpu:bool=False):
-    """ fix seed """
-    random.seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
-    if fix_gpu:
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
-
-
-# plot
-def plot_progress(
-        train_loss, test_loss, num_epoch, outdir, xlabel="epoch", ylabel="loss"
-        ):
-    """ plot learning progress """
-    epochs = list(range(1, num_epoch + 1, 1))
-    fig, ax = plt.subplots()
-    plt.rcParams['font.size'] = 18
-    ax.plot(epochs, train_loss, c='purple', label='train')
-    ax.plot(epochs, test_loss, c='orange', label='valid')
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.grid()
-    ax.legend()
-    plt.tight_layout()
-    plt.savefig(outdir + SEP + f'progress_{ylabel}.tif', dpi=100, bbox_inches='tight')
-
-
-def plot_accuracy(scores, labels, outdir):
-    """ plot learning progress """
-    fpr, tpr, _ = metrics.roc_curve(labels, scores)
-    auroc = metrics.auc(fpr, tpr)
-    precision, _, _ = metrics.precision_recall_curve(labels, scores)
-    aupr = metrics.auc(tpr, precision)
-    fig, axes = plt.subplots(1, 2, tight_layout=True)
-    plt.rcParams['font.size'] = 18
-    axes[0, 1].plot(fpr, tpr, c='purple')
-    axes[0, 1].set_title(f'ROC curve (area: {auroc:.3})')
-    axes[0, 1].set_xlabel('FPR')
-    axes[0, 1].set_ylabel('TPR')
-    axes[0, 2].plot(tpr, precision, c='orange')
-    axes[0, 2].set_title(f'PR curve (area: {aupr:.3})')
-    axes[0, 2].set_xlabel('Recall')
-    axes[0, 2].set_ylabel('Precision')
-    plt.grid()
-    plt.savefig(outdir + SEP + 'accuracy.tif', dpi=100, bbox_inches='tight')
-    df = pd.DataFrame({'labels':labels, 'predicts':scores})
-    df.to_csv(outdir + SEP + 'predicted.txt', sep='\t')
-    return auroc, aupr
