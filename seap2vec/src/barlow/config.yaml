@@ -1,4 +1,4 @@
-# invit config file (yaml)
+# vit config
 patch_size: 4 # Input image size: 32x32 -> 8x8 patches
 hidden_size: 48
 num_hidden_layers: 4
@@ -16,3 +16,4 @@ batch_size: 256
 epochs: 100
 lr: 0.01
 save_model_every: 0
+# BT config

@@ -1,6 +1,8 @@
 # SEAP2vecの設計
 
 ## ToDo
+- in house BTを作る  
+    - backboneは選べるようにしておき, 試験実装ではResNet18などにしておく  
 - ADDAの内容確認, modelクラスを伏せて実装  
 - BTとVitの連携  
 
