@@ -55,7 +55,7 @@ class MyTransforms:
     def __init__(self) -> None:
         pass
 
-    def __call__(self, x: np.float) -> torch.Tensor:
+    def __call__(self, x: np.float32) -> torch.Tensor:
         x = torch.from_numpy(x.astype(np.float32))  # example
         return x
 
